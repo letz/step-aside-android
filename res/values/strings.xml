@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">StepAside</string>
+    
+    <string name="rsu">RSU Mode</string>
+    <string name="obu_ambulance">OBU Ambulance Mode</string>
+    <string name="obu">OBU Normal Mode</string>
+
+</resources>
