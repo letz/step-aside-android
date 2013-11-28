@@ -16,18 +16,18 @@ public class MainActivity extends Activity {
 		MLocationManager.getInstance().startLocationUpdates();
 	}
 
-	public void obu(View v){
+	public void _obu(View v){
 		Intent i = new Intent(getApplicationContext(), OBUMode.class);
 		startActivity(i);
 	}
 
-	public void rsu(View v){
+	public void _rsu(View v){
 		Intent i = new Intent(getApplicationContext(), RSUMode.class);
 		startActivity(i);
 
 	}
 
-	public void obuAmbulance(View v){
+	public void _obuAmbulance(View v){
 		Intent i = new Intent(getApplicationContext(), OBUAmbulance.class);
 		startActivity(i);
 	}
