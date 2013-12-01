@@ -3,7 +3,10 @@ package pt.ist.stepaside;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.ist.stepaside.listeners.MessageReceivedListener;
+import pt.ist.stepaside.models.Message;
 import android.content.Context;
+import android.location.Location;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -15,32 +18,40 @@ import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * This class have the responsibility to receive and send messages thru wifi-direct services announcement
+ *
+ * @author letz, diogo
+ *
+ */
 public class WifiDirectControlUnit {
+
+	public static final String TAG = WifiDirectControlUnit.class.getName();
 
 	public static final String SERVICE_NAME = "StepAsideApp";
 
-	private static WifiDirectControlUnit instance;
 	private Context mContext;
 	private WifiP2pManager mManager;
 	private Channel mChannel;
+	private MessageReceivedListener mListener;
 
-	public static WifiDirectControlUnit getInstance(){
-		if(instance == null)
-			instance = new WifiDirectControlUnit(StepAsideApp.getContext());
-		return instance;
+
+	public void setMessageListener(MessageReceivedListener listener){
+		mListener = listener;
 	}
 
-	private WifiDirectControlUnit(Context context){
+	public WifiDirectControlUnit(Context context){
 		mContext = context;
 		mManager = (WifiP2pManager) mContext.getSystemService(Context.WIFI_P2P_SERVICE);
 		mChannel = mManager.initialize(mContext, mContext.getMainLooper(), null);
+
 	}
 
-	public void startRegistration(int id, String location) {
+	public void sendMessage(Message message) {
 		//  Create a string map containing information about your service.
 		Map<String,String> record = new HashMap<String,String>();
-		record.put("loc", location);
-		record.put("msd_id", id + "");
+		record.put("loc", message.getStringCoordinates());
+		record.put("msd_id", message.getId()+"");
 
 		// Service information.  Pass it an instance name, service type
 		// _protocol._transportlayer , and the map containing
@@ -68,9 +79,8 @@ public class WifiDirectControlUnit {
 	}
 
 
-	final HashMap<String, String> buddies = new HashMap<String, String>();
-
-	public void discoverService() {
+	public void receiveMessages() {
+		final HashMap<String, String> buddies = new HashMap<String, String>();
 		DnsSdTxtRecordListener txtListener = new DnsSdTxtRecordListener() {
 			@Override
 			/* Callback includes:
@@ -80,10 +90,14 @@ public class WifiDirectControlUnit {
 			 */
 
 			public void onDnsSdTxtRecordAvailable(String fullDomain, Map<String,String> record, WifiP2pDevice device) {
-				Log.d("Letz", "DnsSdTxtRecord available -" + record.toString());
+
+				Log.d(TAG, "DnsSdTxtRecord available -" + record.toString());
 				buddies.put(device.deviceAddress, record.get("loc").toString());
 				Toast.makeText(mContext, record.get("loc").toString(), Toast.LENGTH_SHORT).show();
 				Toast.makeText(mContext, record.get("msd_id").toString(), Toast.LENGTH_SHORT).show();
+
+				Message m = new Message(10, new Location("dummy"));
+				mListener.onMessageReceived(m);
 			}
 		};
 
@@ -98,7 +112,7 @@ public class WifiDirectControlUnit {
 						.containsKey(resourceType.deviceAddress) ? buddies
 								.get(resourceType.deviceAddress) : resourceType.deviceName;
 
-								Log.d("Letz", "onBonjourServiceAvailable " + instanceName);
+								Log.d(TAG, "onBonjourServiceAvailable " + instanceName);
 								Toast.makeText(mContext, instanceName, Toast.LENGTH_SHORT).show();
 			}
 		};
@@ -111,13 +125,13 @@ public class WifiDirectControlUnit {
 				new ActionListener() {
 			@Override
 			public void onSuccess() {
-				Log.d("Letz", "service request success");
+				Log.d(TAG, "service request success");
 				Toast.makeText(mContext, "service request success", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
 			public void onFailure(int code) {
-				Log.d("Letz", "service request error");
+				Log.d(TAG, "service request error");
 				Toast.makeText(mContext, "service request error", Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -126,18 +140,17 @@ public class WifiDirectControlUnit {
 
 			@Override
 			public void onSuccess() {
-				Log.d("Letz", "service discover success");
+				Log.d(TAG, "service discover success");
 				Toast.makeText(mContext, "service discover success", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
 			public void onFailure(int code) {
-				Log.d("Letz", "service discover error");
+				Log.d(TAG, "service discover error");
 				Toast.makeText(mContext, "service discover error", Toast.LENGTH_SHORT).show();
 			}
 		});
 
 	}
-
 
 }
