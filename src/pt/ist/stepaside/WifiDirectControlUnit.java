@@ -78,9 +78,8 @@ public class WifiDirectControlUnit {
 		});
 	}
 
-
+	final HashMap<String, String> buddies = new HashMap<String, String>();
 	public void receiveMessages() {
-		final HashMap<String, String> buddies = new HashMap<String, String>();
 		DnsSdTxtRecordListener txtListener = new DnsSdTxtRecordListener() {
 			@Override
 			/* Callback includes:
@@ -95,8 +94,11 @@ public class WifiDirectControlUnit {
 				buddies.put(device.deviceAddress, record.get("loc").toString());
 				Toast.makeText(mContext, record.get("loc").toString(), Toast.LENGTH_SHORT).show();
 				Toast.makeText(mContext, record.get("msd_id").toString(), Toast.LENGTH_SHORT).show();
-
-				Message m = new Message(10, new Location("dummy"));
+				String [] locToParse = record.get("loc").toString().split(" ");
+				Location l = new Location("dummy");
+				l.setLatitude(Double.parseDouble(locToParse[0]));
+				l.setLongitude(Double.parseDouble(locToParse[1]));
+				Message m = new Message(Integer.parseInt(record.get("msd_id").toString()), l);
 				mListener.onMessageReceived(m);
 			}
 		};

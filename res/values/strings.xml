@@ -9,6 +9,7 @@
     <string name="registry_button_ambulance">Registry Service</string>
     <string name="message_id_title">Message ID</string>
     <string name="gps_location_title">GPS Location</string>
-    
+    <string name="edit_message">ID</string>
+    <string name="log_obu">Log from received messages:</string>
     
 </resources>

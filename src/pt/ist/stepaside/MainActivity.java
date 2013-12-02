@@ -14,6 +14,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		MLocationManager.getInstance().startLocationUpdates();
+		StepAsideControlUnit.getInstance();
+
 	}
 
 	public void obu(View v){

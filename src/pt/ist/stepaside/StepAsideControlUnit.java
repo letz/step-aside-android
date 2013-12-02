@@ -1,7 +1,5 @@
 package pt.ist.stepaside;
 
-import java.util.Random;
-
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.MLocationManager;
@@ -24,13 +22,17 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private WifiDirectControlUnit mWDCU;
 	private MLocationManager mLocManager;
 	private Context mContext;
+	private MessageReceivedListener mListener;
+
 
 	public static StepAsideControlUnit getInstance(){
 		if(instance == null)
 			instance = new StepAsideControlUnit(StepAsideApp.getContext());
 		return instance;
 	}
-
+	public void setMessageListener(MessageReceivedListener listener){
+		mListener = listener;
+	}
 	private StepAsideControlUnit(Context context) {
 		mContext = context;
 		mWDCU = new WifiDirectControlUnit(mContext);
@@ -43,19 +45,16 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	public void onMessageReceived(Message response) {
 		Log.v(TAG, "Message Received");
 		Log.v(TAG, response.toString());
+		mListener.onMessageReceived(response);
 
 	}
 	
-	public Message sendMessage(){
+	public void startListening(){
+		mWDCU.receiveMessages();
+	}
+	public Message sendMessage(int id){
 	    Location location = mLocManager.getBestLocation();
-	    //random message id
-	    int min = 1;
-	    int max = 10;
-	    Random rand = new Random();
-	    // nextInt is normally exclusive of the top value,
-	    // so add 1 to make it inclusive
-	    int randomNum = rand.nextInt((max - min) + 1) + min;    
-		Message toSend = new Message(randomNum, location);
+		Message toSend = new Message(id, location);
 		mWDCU.sendMessage(toSend);
 		//Return message just for debug
 		return toSend;
