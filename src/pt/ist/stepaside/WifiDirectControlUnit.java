@@ -44,7 +44,6 @@ public class WifiDirectControlUnit {
 		mContext = context;
 		mManager = (WifiP2pManager) mContext.getSystemService(Context.WIFI_P2P_SERVICE);
 		mChannel = mManager.initialize(mContext, mContext.getMainLooper(), null);
-
 	}
 
 	public void sendMessage(Message message) {
@@ -82,11 +81,6 @@ public class WifiDirectControlUnit {
 	public void receiveMessages() {
 		DnsSdTxtRecordListener txtListener = new DnsSdTxtRecordListener() {
 			@Override
-			/* Callback includes:
-			 * fullDomain: full domain name: e.g "printer._ipp._tcp.local."
-			 * record: TXT record dta as a map of key/value pairs.
-			 * device: The device running the advertised service.
-			 */
 
 			public void onDnsSdTxtRecordAvailable(String fullDomain, Map<String,String> record, WifiP2pDevice device) {
 
@@ -148,8 +142,22 @@ public class WifiDirectControlUnit {
 
 			@Override
 			public void onFailure(int code) {
-				Log.d(TAG, "service discover error");
-				Toast.makeText(mContext, "service discover error", Toast.LENGTH_SHORT).show();
+				String s = "";
+				switch (code) {
+				case WifiP2pManager.P2P_UNSUPPORTED:
+					s = "Wi-Fi P2P isn't supported on the device running the app.";
+					break;
+				case WifiP2pManager.BUSY:
+					s = "The system is to busy to process the request.";
+					break;
+				case WifiP2pManager.ERROR:
+					s = "The operation failed due to an internal error.";
+					break;
+				default:
+					break;
+				}
+				Log.d(TAG, s);
+				Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
 			}
 		});
 
