@@ -6,5 +6,9 @@
     <string name="rsu">RSU Mode</string>
     <string name="obu_ambulance">OBU Ambulance Mode</string>
     <string name="obu">OBU Normal Mode</string>
-
+    <string name="registry_button_ambulance">Registry Service</string>
+    <string name="message_id_title">Message ID</string>
+    <string name="gps_location_title">GPS Location</string>
+    
+    
 </resources>

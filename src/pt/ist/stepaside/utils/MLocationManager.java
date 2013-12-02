@@ -36,7 +36,7 @@ public class MLocationManager {
 	private LocationListener gpsLocationListener,networkLocationListener, passiveLocationListener;
 	private Location bestLocation;
 
-	private MLocationManager(Context context) {
+	public MLocationManager(Context context) {
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		this.context = context;
 

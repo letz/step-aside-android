@@ -1,7 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -9,6 +10,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
+    <Button
+        android:id="@+id/button_registry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="_serviceRegistryCLick"
+        android:text="@string/registry_button_ambulance" />
 
+
+    <TextView
+        android:id="@+id/messageIdTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/message_id_title" >
+    </TextView>
+    
+    <TextView
+        android:id="@+id/messageId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </TextView>
+    
+    
+    <TextView
+        android:id="@+id/gpsLocationTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gps_location_title" >
+    </TextView>
+    
+    
+    <TextView
+        android:id="@+id/gpsLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </TextView>
 
 </LinearLayout>

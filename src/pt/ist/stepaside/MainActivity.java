@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	public void obuAmbulance(View v){
+	public void _obuAmbulance(View v){
 		Intent i = new Intent(getApplicationContext(), OBUAmbulance.class);
 		startActivity(i);
 	}
