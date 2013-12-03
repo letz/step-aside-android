@@ -35,6 +35,12 @@ public class WifiDirectControlUnit {
 	private Channel mChannel;
 	private MessageReceivedListener mListener;
 
+	private WifiP2pDnsSdServiceRequest mServiceRequest;
+	private DnsSdServiceResponseListener mServListener;
+	private WifiP2pDnsSdServiceInfo mServiceInfo;
+
+	final HashMap<String, String> buddies = new HashMap<String, String>();
+
 
 	public void setMessageListener(MessageReceivedListener listener){
 		mListener = listener;
@@ -52,16 +58,12 @@ public class WifiDirectControlUnit {
 		record.put("loc", message.getStringCoordinates());
 		record.put("msd_id", message.getId()+"");
 
-		// Service information.  Pass it an instance name, service type
-		// _protocol._transportlayer , and the map containing
-		// information other devices will want once they connect to this one.
-		WifiP2pDnsSdServiceInfo serviceInfo =
-				WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "_presence._tcp", record);
+		mServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "_presence._tcp", record);
 
 		// Add the local service, sending the service info, network channel,
 		// and listener that will be used to indicate success or failure of
 		// the request.
-		mManager.addLocalService(mChannel, serviceInfo, new ActionListener() {
+		mManager.addLocalService(mChannel, mServiceInfo, new ActionListener() {
 			@Override
 			public void onSuccess() {
 				Toast.makeText(mContext, "Registo successo!", Toast.LENGTH_SHORT).show();
@@ -77,7 +79,40 @@ public class WifiDirectControlUnit {
 		});
 	}
 
-	final HashMap<String, String> buddies = new HashMap<String, String>();
+	public void cancelSendingMessage(){
+		mManager.removeLocalService(mChannel, mServiceInfo, new ActionListener() {
+
+			@Override
+			public void onSuccess() {
+				Toast.makeText(mContext, "Registo cancelado successo!", Toast.LENGTH_SHORT).show();
+
+			}
+
+			@Override
+			public void onFailure(int reason) {
+				Toast.makeText(mContext, "Registo cancelado fail!", Toast.LENGTH_SHORT).show();
+
+			}
+		});
+	}
+
+	public void cancelListen(){
+		mManager.removeServiceRequest(mChannel, mServiceRequest, new ActionListener() {
+
+			@Override
+			public void onSuccess() {
+				Toast.makeText(mContext, "Service listen cancelado!", Toast.LENGTH_SHORT).show();
+
+			}
+
+			@Override
+			public void onFailure(int reason) {
+				Toast.makeText(mContext, "Service listen cancelado fail!", Toast.LENGTH_SHORT).show();
+
+			}
+		});
+	}
+
 	public void receiveMessages() {
 		DnsSdTxtRecordListener txtListener = new DnsSdTxtRecordListener() {
 			@Override
@@ -97,7 +132,7 @@ public class WifiDirectControlUnit {
 			}
 		};
 
-		DnsSdServiceResponseListener servListener = new DnsSdServiceResponseListener() {
+		mServListener = new DnsSdServiceResponseListener() {
 			@Override
 			public void onDnsSdServiceAvailable(String instanceName, String registrationType,
 					WifiP2pDevice resourceType) {
@@ -113,11 +148,11 @@ public class WifiDirectControlUnit {
 			}
 		};
 
-		mManager.setDnsSdResponseListeners(mChannel, servListener, txtListener);
+		mManager.setDnsSdResponseListeners(mChannel, mServListener, txtListener);
 
-		WifiP2pDnsSdServiceRequest serviceRequest = WifiP2pDnsSdServiceRequest.newInstance();
+		mServiceRequest = WifiP2pDnsSdServiceRequest.newInstance();
 		mManager.addServiceRequest(mChannel,
-				serviceRequest,
+				mServiceRequest,
 				new ActionListener() {
 			@Override
 			public void onSuccess() {
@@ -127,8 +162,22 @@ public class WifiDirectControlUnit {
 
 			@Override
 			public void onFailure(int code) {
-				Log.d(TAG, "service request error");
-				Toast.makeText(mContext, "service request error", Toast.LENGTH_SHORT).show();
+				String s = "";
+				switch (code) {
+				case WifiP2pManager.P2P_UNSUPPORTED:
+					s = "Wi-Fi P2P isn't supported on the device running the app.";
+					break;
+				case WifiP2pManager.BUSY:
+					s = "The system is to busy to process the request.";
+					break;
+				case WifiP2pManager.ERROR:
+					s = "The operation failed due to an internal error.";
+					break;
+				default:
+					break;
+				}
+				Log.d(TAG, s);
+				Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
 			}
 		});
 

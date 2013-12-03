@@ -4,26 +4,40 @@ import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
 
-public class OBUMode extends Activity implements MessageReceivedListener {
+public class OBUMode extends Activity implements MessageReceivedListener, OnCheckedChangeListener {
 
 	private StepAsideControlUnit sTACU = StepAsideControlUnit.getInstance();
 	private TextView logTextView;
+	private Switch startStop;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.obu_layout);
 		logTextView = (TextView) findViewById(R.id.logGpsAndId);
+		startStop = (Switch) findViewById(R.id.start_stop);
 		sTACU.setMessageListener(this);
-		sTACU.startListening();
+		startStop.setOnCheckedChangeListener(this);
 
 	}
 
 	@Override
 	public void onMessageReceived(Message response) {
 		logTextView.setText(logTextView.getText() +"\n" + "id: " + response.getId() + " location: " +  response.getStringCoordinates());
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if(isChecked)
+			sTACU.startListening();
+		else
+			sTACU.stopListen();
+
 	}
 
 }

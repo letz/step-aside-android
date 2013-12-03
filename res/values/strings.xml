@@ -11,5 +11,6 @@
     <string name="gps_location_title">GPS Location</string>
     <string name="edit_message">ID</string>
     <string name="log_obu">Log from received messages:</string>
+    <string name="start">start</string>
     
 </resources>

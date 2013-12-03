@@ -48,7 +48,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		mListener.onMessageReceived(response);
 
 	}
-	
+
 	public void startListening(){
 		mWDCU.receiveMessages();
 	}
@@ -58,6 +58,14 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		mWDCU.sendMessage(toSend);
 		//Return message just for debug
 		return toSend;
+	}
+
+	public void stopListen(){
+		mWDCU.cancelListen();
+	}
+
+	public void stopSending(){
+		mWDCU.cancelSendingMessage();
 	}
 
 }
