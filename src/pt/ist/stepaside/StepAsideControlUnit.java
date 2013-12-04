@@ -5,6 +5,7 @@ import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.MLocationManager;
 import android.content.Context;
 import android.location.Location;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -24,6 +25,11 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private Context mContext;
 	private MessageReceivedListener mListener;
 
+	private int mIntervalR = 2000; // 5 seconds by default, can be changed later
+	private int mIntervalS = 1000;
+	private Handler mHandlerR;
+	private Handler mHandlerS;
+
 
 	public static StepAsideControlUnit getInstance(){
 		if(instance == null)
@@ -38,6 +44,8 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		mWDCU = new WifiDirectControlUnit(mContext);
 		mWDCU.setMessageListener(this);
 		mLocManager = MLocationManager.getInstance();
+		mHandlerR = new Handler();
+		mHandlerS = new Handler();
 	}
 
 
@@ -46,14 +54,13 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		Log.v(TAG, "Message Received");
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
-
 	}
 
 	public void startListening(){
 		mWDCU.receiveMessages();
 	}
 	public Message sendMessage(int id){
-	    Location location = mLocManager.getBestLocation();
+		Location location = mLocManager.getBestLocation();
 		Message toSend = new Message(id, location);
 		mWDCU.sendMessage(toSend);
 		//Return message just for debug
@@ -61,11 +68,60 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	}
 
 	public void stopListen(){
-		mWDCU.cancelListen();
+		try {
+			mWDCU.cancelListen();
+		} catch (IllegalArgumentException e) {
+			Log.d(TAG, "R: first stop");
+		}
+
 	}
 
 	public void stopSending(){
-		mWDCU.cancelSendingMessage();
+		try {
+			mWDCU.cancelSendingMessage();
+		} catch (IllegalArgumentException e) {
+			Log.d(TAG, "S: first stop");
+		}
+
 	}
 
+
+	Runnable mStatusRece = new Runnable() {
+		@Override
+		public void run() {
+			stopListen();
+			startListening();
+			Log.d(TAG, "rece");
+			mHandlerR.postDelayed(mStatusRece, mIntervalR);
+		}
+	};
+
+	Runnable mStatusSender = new Runnable() {
+		@Override
+		public void run() {
+			stopSending();
+			sendMessage(mID);
+			Log.d(TAG, "send");
+			mHandlerS.postDelayed(mStatusSender, mIntervalS);
+		}
+	};
+
+	private int mID;
+
+	public void startRepeatingListen() {
+		mStatusRece.run();
+	}
+
+	public void stopRepeatingListen() {
+		mHandlerR.removeCallbacks(mStatusRece);
+	}
+
+	public void startRepeatingSend(int ID) {
+		mID = ID;
+		mStatusSender.run();
+	}
+
+	public void stopRepeatingSend() {
+		mHandlerS.removeCallbacks(mStatusSender);
+	}
 }

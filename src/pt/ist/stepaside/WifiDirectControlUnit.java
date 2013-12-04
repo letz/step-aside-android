@@ -50,6 +50,7 @@ public class WifiDirectControlUnit {
 		mContext = context;
 		mManager = (WifiP2pManager) mContext.getSystemService(Context.WIFI_P2P_SERVICE);
 		mChannel = mManager.initialize(mContext, mContext.getMainLooper(), null);
+
 	}
 
 	public void sendMessage(Message message) {
@@ -66,7 +67,7 @@ public class WifiDirectControlUnit {
 		mManager.addLocalService(mChannel, mServiceInfo, new ActionListener() {
 			@Override
 			public void onSuccess() {
-				Toast.makeText(mContext, "Registo successo!", Toast.LENGTH_SHORT).show();
+			//	Toast.makeText(mContext, "Registo successo!", Toast.LENGTH_SHORT).show();
 				// Command successful! Code isn't necessarily needed here,
 				// Unless you want to update the UI or add logging statements.
 			}
@@ -84,7 +85,7 @@ public class WifiDirectControlUnit {
 
 			@Override
 			public void onSuccess() {
-				Toast.makeText(mContext, "Registo cancelado successo!", Toast.LENGTH_SHORT).show();
+			//	Toast.makeText(mContext, "Registo cancelado successo!", Toast.LENGTH_SHORT).show();
 
 			}
 
@@ -101,7 +102,7 @@ public class WifiDirectControlUnit {
 
 			@Override
 			public void onSuccess() {
-				Toast.makeText(mContext, "Service listen cancelado!", Toast.LENGTH_SHORT).show();
+			//	Toast.makeText(mContext, "Service listen cancelado!", Toast.LENGTH_SHORT).show();
 
 			}
 
@@ -121,8 +122,8 @@ public class WifiDirectControlUnit {
 
 				Log.d(TAG, "DnsSdTxtRecord available -" + record.toString());
 				buddies.put(device.deviceAddress, record.get("loc").toString());
-				Toast.makeText(mContext, record.get("loc").toString(), Toast.LENGTH_SHORT).show();
-				Toast.makeText(mContext, record.get("msd_id").toString(), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(mContext, record.get("loc").toString(), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(mContext, record.get("msd_id").toString(), Toast.LENGTH_SHORT).show();
 				String [] locToParse = record.get("loc").toString().split(" ");
 				Location l = new Location("dummy");
 				l.setLatitude(Double.parseDouble(locToParse[0]));
@@ -131,7 +132,6 @@ public class WifiDirectControlUnit {
 				mListener.onMessageReceived(m);
 			}
 		};
-
 		mServListener = new DnsSdServiceResponseListener() {
 			@Override
 			public void onDnsSdServiceAvailable(String instanceName, String registrationType,
@@ -144,12 +144,11 @@ public class WifiDirectControlUnit {
 								.get(resourceType.deviceAddress) : resourceType.deviceName;
 
 								Log.d(TAG, "onBonjourServiceAvailable " + instanceName);
-								Toast.makeText(mContext, instanceName, Toast.LENGTH_SHORT).show();
+							//	Toast.makeText(mContext, instanceName, Toast.LENGTH_SHORT).show();
 			}
 		};
 
 		mManager.setDnsSdResponseListeners(mChannel, mServListener, txtListener);
-
 		mServiceRequest = WifiP2pDnsSdServiceRequest.newInstance();
 		mManager.addServiceRequest(mChannel,
 				mServiceRequest,
@@ -157,7 +156,7 @@ public class WifiDirectControlUnit {
 			@Override
 			public void onSuccess() {
 				Log.d(TAG, "service request success");
-				Toast.makeText(mContext, "service request success", Toast.LENGTH_SHORT).show();
+			//	Toast.makeText(mContext, "service request success", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
@@ -177,7 +176,7 @@ public class WifiDirectControlUnit {
 					break;
 				}
 				Log.d(TAG, s);
-				Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -187,7 +186,7 @@ public class WifiDirectControlUnit {
 			public void onSuccess() {
 				Log.d(TAG, "service discover success");
 				Toast.makeText(mContext, "service discover success", Toast.LENGTH_SHORT).show();
-			}
+			}//
 
 			@Override
 			public void onFailure(int code) {

@@ -1,5 +1,7 @@
 package pt.ist.stepaside;
 
+import java.util.Calendar;
+
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import android.app.Activity;
@@ -28,15 +30,15 @@ public class OBUMode extends Activity implements MessageReceivedListener, OnChec
 
 	@Override
 	public void onMessageReceived(Message response) {
-		logTextView.setText(logTextView.getText() +"\n" + "id: " + response.getId() + " location: " +  response.getStringCoordinates());
+		logTextView.setText(logTextView.getText() +"\n" + Calendar.getInstance().getTime() +"   id: " + response.getId() + " location: " +  response.getStringCoordinates());
 	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if(isChecked)
-			sTACU.startListening();
+			sTACU.startRepeatingListen();
 		else
-			sTACU.stopListen();
+			sTACU.stopRepeatingListen();
 
 	}
 

@@ -1,6 +1,5 @@
 package pt.ist.stepaside;
 
-import pt.ist.stepaside.models.Message;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -37,12 +36,13 @@ public class OBUAmbulance extends Activity implements OnCheckedChangeListener{
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if(isChecked){
 			int idToSend = Integer.parseInt(id.getText().toString());
-			Message sentMessage = sTACU.sendMessage(idToSend);
-			gps.setText(sentMessage.getStringCoordinates());
-			message.setText(sentMessage.getId()+"");
+//			Message sentMessage = sTACU.sendMessage(idToSend);
+//			gps.setText(sentMessage.getStringCoordinates());
+//			message.setText(sentMessage.getId()+"");
+			sTACU.startRepeatingSend(idToSend);
 		}
 		else
-			sTACU.stopSending();
+			sTACU.stopRepeatingSend();
 	}
 
 }
