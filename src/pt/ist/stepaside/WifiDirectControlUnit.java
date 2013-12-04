@@ -185,7 +185,7 @@ public class WifiDirectControlUnit {
 			@Override
 			public void onSuccess() {
 				Log.d(TAG, "service discover success");
-				Toast.makeText(mContext, "service discover success", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(mContext, "service discover success", Toast.LENGTH_SHORT).show();
 			}//
 
 			@Override

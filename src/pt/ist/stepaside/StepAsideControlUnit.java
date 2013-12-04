@@ -26,7 +26,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private MessageReceivedListener mListener;
 
 	private int mIntervalR = 2000; // 5 seconds by default, can be changed later
-	private int mIntervalS = 1000;
+	private int mIntervalS = 1500;
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 
@@ -54,6 +54,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		Log.v(TAG, "Message Received");
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
+		startRepeatingSend(response.getId());
 	}
 
 	public void startListening(){
