@@ -34,7 +34,6 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 
-
 	public static StepAsideControlUnit getInstance() {
 		if(instance == null)
 			instance = new StepAsideControlUnit(StepAsideApp.getContext());
@@ -66,7 +65,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		startRepeatingSend(response.getId());
 	}
 
-	public void startListening(){
+	public void startListening() {
 		mWDCU.receiveMessages();
 	}
 
@@ -79,7 +78,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		return toSend;
 	}
 
-	public void stopListen(){
+	public void stopListen() {
 		try {
 			mWDCU.cancelListen();
 		} catch (IllegalArgumentException e) {
@@ -88,7 +87,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 
 	}
 
-	public void stopSending(){
+	public void stopSending() {
 		try {
 			mWDCU.cancelSendingMessage();
 		} catch (IllegalArgumentException e) {
