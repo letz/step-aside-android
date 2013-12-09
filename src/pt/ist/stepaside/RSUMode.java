@@ -1,21 +1,25 @@
 package pt.ist.stepaside;
 
-
+import pt.ist.stepaside.listeners.MessageReceivedListener;
+import pt.ist.stepaside.models.Message;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-public class RSUMode extends Activity {
+
+public class RSUMode extends Activity implements MessageReceivedListener {
 
 	public enum TrafficLight {RED,YELLOW,GREEN};
 
 	private ImageView red,yellow,green;
+	private StepAsideControlUnit sTACU = StepAsideControlUnit.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.rsu_layout);
+		sTACU.setMessageListener(this);
 		red = (ImageView) findViewById(R.id.red_signal);
 		yellow = (ImageView) findViewById(R.id.yellow_signal);
 		green = (ImageView) findViewById(R.id.green_signal);
@@ -50,5 +54,11 @@ public class RSUMode extends Activity {
 
 	public void _redClick(View v) {
 		changeSignal(TrafficLight.RED);
+	}
+
+	@Override
+	public void onMessageReceived(Message response) {
+		// TODO Auto-generated method stub
+
 	}
 }
