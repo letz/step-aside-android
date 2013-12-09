@@ -9,12 +9,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
+
     <ImageView
         android:id="@+id/red_signal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:onClick="_redClick"
         android:src="@drawable/circle"
         tools:ignore="ContentDescription" />
 
@@ -23,7 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:onClick="_yellowClick"
         android:src="@drawable/circle"
         tools:ignore="ContentDescription" />
 
@@ -32,7 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:onClick="_greenClick"
         android:src="@drawable/circle"
         tools:ignore="ContentDescription" />
 

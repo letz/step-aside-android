@@ -4,25 +4,34 @@ import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Handler;
 import android.widget.ImageView;
 
 
 public class RSUMode extends Activity implements MessageReceivedListener {
+
+	public static final String TAG = RSUMode.class.getName();
 
 	public enum TrafficLight {RED,YELLOW,GREEN};
 
 	private ImageView red,yellow,green;
 	private StepAsideControlUnit sTACU = StepAsideControlUnit.getInstance();
 
+	private int mIntervalYellow = 1500;
+	private int mIntervalRed = 3000;
+	private TrafficLight mStatusTrafic = TrafficLight.GREEN;
+	private Handler mHandler;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.rsu_layout);
 		sTACU.setMessageListener(this);
+		mHandler = new Handler();
 		red = (ImageView) findViewById(R.id.red_signal);
 		yellow = (ImageView) findViewById(R.id.yellow_signal);
 		green = (ImageView) findViewById(R.id.green_signal);
+		changeSignal(mStatusTrafic);
 	}
 
 	public void changeSignal(TrafficLight light) {
@@ -44,21 +53,37 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 		}
 	}
 
-	public void _greenClick(View v) {
-		changeSignal(TrafficLight.GREEN);
-	}
-
-	public void _yellowClick(View v) {
-		changeSignal(TrafficLight.YELLOW);
-	}
-
-	public void _redClick(View v) {
-		changeSignal(TrafficLight.RED);
-	}
-
 	@Override
 	public void onMessageReceived(Message response) {
-		// TODO Auto-generated method stub
+		startRepeating();
+	}
 
+	Runnable mStatus = new Runnable() {
+		@Override
+		public void run() {
+			if(mStatusTrafic.equals(TrafficLight.GREEN)) {
+				mStatusTrafic = TrafficLight.YELLOW;
+				changeSignal(mStatusTrafic);
+				mHandler.postDelayed(mStatus, mIntervalYellow);
+			}
+			else if(mStatusTrafic.equals(TrafficLight.YELLOW)) {
+				mStatusTrafic = TrafficLight.RED;
+				changeSignal(mStatusTrafic);
+				mHandler.postDelayed(mStatus, mIntervalRed);
+			}
+			else {
+				mStatusTrafic = TrafficLight.GREEN;
+				changeSignal(mStatusTrafic);
+				stopRepeating();
+			}
+		}
+	};
+
+	private void startRepeating() {
+		mStatus.run();
+	}
+
+	private void stopRepeating() {
+		mHandler.removeCallbacks(mStatus);
 	}
 }
