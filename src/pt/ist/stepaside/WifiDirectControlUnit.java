@@ -1,5 +1,6 @@
 package pt.ist.stepaside;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +58,9 @@ public class WifiDirectControlUnit {
 		//  Create a string map containing information about your service.
 		Map<String,String> record = new HashMap<String,String>();
 		record.put("loc", message.getStringCoordinates());
+		record.put("vhl_id", message.getSenderID()+"");
 		record.put("msd_id", message.getId()+"");
+		record.put("time", message.getTime().getTime()+"");
 
 		mServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "_presence._tcp", record);
 
@@ -128,7 +131,10 @@ public class WifiDirectControlUnit {
 				Location l = new Location("dummy");
 				l.setLatitude(Double.parseDouble(locToParse[0]));
 				l.setLongitude(Double.parseDouble(locToParse[1]));
-				Message m = new Message(Integer.parseInt(record.get("msd_id").toString()), l);
+				Message m = new Message(Integer.parseInt(record.get("vhl_id").toString()),
+						Integer.parseInt(record.get("msd_id").toString()),
+						l,
+						new Date(Long.parseLong(record.get("time").toString())));
 				mListener.onMessageReceived(m);
 			}
 		};

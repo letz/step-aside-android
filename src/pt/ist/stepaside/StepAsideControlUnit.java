@@ -1,5 +1,7 @@
 package pt.ist.stepaside;
 
+import java.util.Calendar;
+
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.MLocationManager;
@@ -25,20 +27,24 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private Context mContext;
 	private MessageReceivedListener mListener;
 
-	private int mIntervalR = 2000; // 5 seconds by default, can be changed later
+	public static int SENDER_ID;
+
+	private int mIntervalR = 2000;
 	private int mIntervalS = 1500;
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 
 
-	public static StepAsideControlUnit getInstance(){
+	public static StepAsideControlUnit getInstance() {
 		if(instance == null)
 			instance = new StepAsideControlUnit(StepAsideApp.getContext());
 		return instance;
 	}
+
 	public void setMessageListener(MessageReceivedListener listener){
 		mListener = listener;
 	}
+
 	private StepAsideControlUnit(Context context) {
 		mContext = context;
 		mWDCU = new WifiDirectControlUnit(mContext);
@@ -48,6 +54,9 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		mHandlerS = new Handler();
 	}
 
+	public void setSenderID(int id){
+		SENDER_ID = id;
+	}
 
 	@Override
 	public void onMessageReceived(Message response) {
@@ -60,11 +69,13 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	public void startListening(){
 		mWDCU.receiveMessages();
 	}
-	public Message sendMessage(int id){
+
+	public Message sendMessage(int id) {
 		Location location = mLocManager.getBestLocation();
-		Message toSend = new Message(id, location);
+		location.setLatitude(1.2);
+		location.setLongitude(1.2);
+		Message toSend = new Message(SENDER_ID, id, location, Calendar.getInstance().getTime());
 		mWDCU.sendMessage(toSend);
-		//Return message just for debug
 		return toSend;
 	}
 
@@ -115,6 +126,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 
 	public void stopRepeatingListen() {
 		mHandlerR.removeCallbacks(mStatusRece);
+		stopListen();
 	}
 
 	public void startRepeatingSend(int ID) {
@@ -124,5 +136,6 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 
 	public void stopRepeatingSend() {
 		mHandlerS.removeCallbacks(mStatusSender);
+		stopSending();
 	}
 }
