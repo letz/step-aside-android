@@ -5,7 +5,11 @@ import java.util.Calendar;
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.MLocationManager;
+import pt.ist.stepaside.utils.Utils;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Handler;
 import android.util.Log;
@@ -17,7 +21,7 @@ import android.util.Log;
  * @author letz, diogo
  *
  */
-public class StepAsideControlUnit implements MessageReceivedListener {
+public class StepAsideControlUnit implements MessageReceivedListener, SensorEventListener {
 
 	public static final String TAG = StepAsideControlUnit.class.getName();
 
@@ -27,7 +31,8 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	private Context mContext;
 	private MessageReceivedListener mListener;
 
-	public static int SENDER_ID;
+	public static Location RSU_LOC;
+	private int mAxis = 0;
 
 	private int mIntervalR = 2000;
 	private int mIntervalS = 5000;
@@ -51,18 +56,24 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		mLocManager = MLocationManager.getInstance();
 		mHandlerR = new Handler();
 		mHandlerS = new Handler();
+
+		RSU_LOC = new Location("dummy");
+		RSU_LOC.setLatitude(-9.3050001);
+		RSU_LOC.setLongitude(38.7411374);
 	}
 
-	public void setSenderID(int id){
-		SENDER_ID = id;
+	public static void setRSULocation(Location l) {
+		RSU_LOC = l;
 	}
+
 
 	@Override
 	public void onMessageReceived(Message response) {
 		Log.v(TAG, "Message Received");
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
-		//startRepeatingSend(response.getId());
+		if(isSameAxis(response))
+			startRepeatingSend(response);
 	}
 
 	public void startListening() {
@@ -70,12 +81,23 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	}
 
 	public void sendMessage(Message toSend) {
-		//Location location = mLocManager.getBestLocation();
-		toSend.setDistance(20.0);
-		toSend.setAxis(300);
+		Log.v(TAG, "Sending Message");
+		toSend.setDistance(Utils.distanceTo(RSU_LOC, mLocManager.getBestLocation()));
+		toSend.setAxis(mAxis);
 		toSend.setTime(Calendar.getInstance().getTime());
 		toSend.setVelocity(30.0);
+		Log.v(TAG, toSend.toString());
 		mWDCU.sendMessage(toSend);
+	}
+
+	private boolean isDistanceProb(Message msg) {
+		double rand = Math.random();
+		double prob = 1 - ( Utils.distanceTo(RSU_LOC, mLocManager.getBestLocation()) / msg.getDistance());
+		return rand < prob;
+	}
+
+	private boolean isSameAxis(Message msg) {
+		return (msg.getAxis() - mAxis) <= 20;
 	}
 
 	public void stopListen() {
@@ -136,5 +158,17 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	public void stopRepeatingSend() {
 		mHandlerS.removeCallbacks(mStatusSender);
 		stopSending();
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		 mAxis = Math.round(event.values[0]);
+
 	}
 }
