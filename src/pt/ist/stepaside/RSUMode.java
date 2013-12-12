@@ -17,6 +17,7 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 	private ImageView red,yellow,green;
 	private StepAsideControlUnit sTACU = StepAsideControlUnit.getInstance();
 
+	boolean isChange = false;
 	private int mIntervalYellow = 1500;
 	private int mIntervalRed = 3000;
 	private TrafficLight mStatusTrafic = TrafficLight.GREEN;
@@ -32,6 +33,7 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 		yellow = (ImageView) findViewById(R.id.yellow_signal);
 		green = (ImageView) findViewById(R.id.green_signal);
 		changeSignal(mStatusTrafic);
+		sTACU.startRepeatingListen();
 	}
 
 	public void changeSignal(TrafficLight light) {
@@ -55,12 +57,14 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 
 	@Override
 	public void onMessageReceived(Message response) {
-		startRepeating();
+		if(!isChange)
+			startRepeating();
 	}
 
 	Runnable mStatus = new Runnable() {
 		@Override
 		public void run() {
+			isChange = true;
 			if(mStatusTrafic.equals(TrafficLight.GREEN)) {
 				mStatusTrafic = TrafficLight.YELLOW;
 				changeSignal(mStatusTrafic);
@@ -75,6 +79,7 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 				mStatusTrafic = TrafficLight.GREEN;
 				changeSignal(mStatusTrafic);
 				stopRepeating();
+				isChange = false;
 			}
 		}
 	};
