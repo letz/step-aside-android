@@ -30,7 +30,7 @@ public class OBUMode extends Activity implements MessageReceivedListener, OnChec
 
 	@Override
 	public void onMessageReceived(Message response) {
-		logTextView.setText(logTextView.getText() +"\n" + Calendar.getInstance().getTime() +"   id: " + response.getId() + " location: " +  response.getStringCoordinates());
+		logTextView.setText(logTextView.getText() +"\n" + response.toString());
 	}
 
 	@Override

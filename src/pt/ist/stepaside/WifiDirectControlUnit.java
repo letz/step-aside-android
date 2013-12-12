@@ -57,10 +57,11 @@ public class WifiDirectControlUnit {
 	public void sendMessage(Message message) {
 		//  Create a string map containing information about your service.
 		Map<String,String> record = new HashMap<String,String>();
-		record.put("loc", message.getStringCoordinates());
-		record.put("vhl_id", message.getSenderID()+"");
+		record.put("dst", message.getDistance()+"");
+		record.put("spd",+message.getVelocity()+"");
 		record.put("msd_id", message.getId()+"");
 		record.put("time", message.getTime().getTime()+"");
+		record.put("axis", message.getAxis()+"");
 
 		mServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "_presence._tcp", record);
 
@@ -124,17 +125,14 @@ public class WifiDirectControlUnit {
 			public void onDnsSdTxtRecordAvailable(String fullDomain, Map<String,String> record, WifiP2pDevice device) {
 
 				Log.d(TAG, "DnsSdTxtRecord available -" + record.toString());
-				buddies.put(device.deviceAddress, record.get("loc").toString());
 				//Toast.makeText(mContext, record.get("loc").toString(), Toast.LENGTH_SHORT).show();
 				//Toast.makeText(mContext, record.get("msd_id").toString(), Toast.LENGTH_SHORT).show();
-				String [] locToParse = record.get("loc").toString().split(" ");
-				Location l = new Location("dummy");
-				l.setLatitude(Double.parseDouble(locToParse[0]));
-				l.setLongitude(Double.parseDouble(locToParse[1]));
-				Message m = new Message(Integer.parseInt(record.get("vhl_id").toString()),
-						Integer.parseInt(record.get("msd_id").toString()),
-						l,
-						new Date(Long.parseLong(record.get("time").toString())));
+				Message m = new Message(Integer.parseInt(record.get("msd_id")));
+				m.setDistance(Double.parseDouble(record.get("dst")));
+				m.setTime(new Date(Long.parseLong(record.get("time"))));
+				m.setAxis(Integer.parseInt(record.get("axis")));
+				m.setVelocity(Double.parseDouble(record.get("spd")));
+
 				mListener.onMessageReceived(m);
 			}
 		};

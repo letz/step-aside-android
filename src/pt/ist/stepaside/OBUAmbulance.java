@@ -1,5 +1,6 @@
 package pt.ist.stepaside;
 
+import pt.ist.stepaside.models.Message;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -39,7 +40,7 @@ public class OBUAmbulance extends Activity implements OnCheckedChangeListener{
 //			Message sentMessage = sTACU.sendMessage(idToSend);
 //			gps.setText(sentMessage.getStringCoordinates());
 //			message.setText(sentMessage.getId()+"");
-			sTACU.startRepeatingSend(idToSend);
+			sTACU.startRepeatingSend(new Message(idToSend));
 		}
 		else
 			sTACU.stopRepeatingSend();

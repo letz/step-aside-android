@@ -30,7 +30,7 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 	public static int SENDER_ID;
 
 	private int mIntervalR = 2000;
-	private int mIntervalS = 1500;
+	private int mIntervalS = 5000;
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 
@@ -62,20 +62,20 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		Log.v(TAG, "Message Received");
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
-		startRepeatingSend(response.getId());
+		//startRepeatingSend(response.getId());
 	}
 
 	public void startListening() {
 		mWDCU.receiveMessages();
 	}
 
-	public Message sendMessage(int id) {
-		Location location = mLocManager.getBestLocation();
-		location.setLatitude(1.2);
-		location.setLongitude(1.2);
-		Message toSend = new Message(SENDER_ID, id, location, Calendar.getInstance().getTime());
+	public void sendMessage(Message toSend) {
+		//Location location = mLocManager.getBestLocation();
+		toSend.setDistance(20.0);
+		toSend.setAxis(300);
+		toSend.setTime(Calendar.getInstance().getTime());
+		toSend.setVelocity(30.0);
 		mWDCU.sendMessage(toSend);
-		return toSend;
 	}
 
 	public void stopListen() {
@@ -111,13 +111,13 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		@Override
 		public void run() {
 			stopSending();
-			sendMessage(mID);
+			sendMessage(mMessage);
 			Log.d(TAG, "send");
 			mHandlerS.postDelayed(mStatusSender, mIntervalS);
 		}
 	};
 
-	private int mID;
+	private Message mMessage;
 
 	public void startRepeatingListen() {
 		mStatusRece.run();
@@ -128,8 +128,8 @@ public class StepAsideControlUnit implements MessageReceivedListener {
 		stopListen();
 	}
 
-	public void startRepeatingSend(int ID) {
-		mID = ID;
+	public void startRepeatingSend(Message msg) {
+		mMessage = msg;
 		mStatusSender.run();
 	}
 
