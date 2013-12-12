@@ -10,6 +10,7 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Handler;
 import android.util.Log;
@@ -39,6 +40,8 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 
+	private SensorManager mSensorManager;
+
 	public static StepAsideControlUnit getInstance() {
 		if(instance == null)
 			instance = new StepAsideControlUnit(StepAsideApp.getContext());
@@ -60,6 +63,9 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		RSU_LOC = new Location("dummy");
 		RSU_LOC.setLatitude(-9.3050001);
 		RSU_LOC.setLongitude(38.7411374);
+		// initialize your android device sensor capabilities
+		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	public static void setRSULocation(Location l) {
@@ -70,10 +76,17 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 	@Override
 	public void onMessageReceived(Message response) {
 		Log.v(TAG, "Message Received");
+		response.setIsRetransmit(true);
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
-		if(isSameAxis(response))
+		if(isSameAxis(response)) {
+			Log.e(TAG,"retransmiting message - mAxis:" + mAxis);
+			stopRepeatingSend();
 			startRepeatingSend(response);
+		} else {
+			Log.e(TAG, "message discarded -" + response.getId());
+		}
+
 	}
 
 	public void startListening() {
@@ -82,11 +95,13 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 
 	public void sendMessage(Message toSend) {
 		Log.v(TAG, "Sending Message");
-		toSend.setDistance(Utils.distanceTo(RSU_LOC, mLocManager.getBestLocation()));
-		toSend.setAxis(mAxis);
-		toSend.setTime(Calendar.getInstance().getTime());
-		toSend.setVelocity(30.0);
-		Log.v(TAG, toSend.toString());
+		if(!toSend.isRetransmit()){
+			toSend.setDistance(Utils.distanceTo(RSU_LOC, mLocManager.getBestLocation()));
+			toSend.setAxis(mAxis);
+			toSend.setTime(Calendar.getInstance().getTime());
+			toSend.setVelocity(30.0);
+			Log.v(TAG, toSend.toString());
+		}
 		mWDCU.sendMessage(toSend);
 	}
 
@@ -168,7 +183,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		 mAxis = Math.round(event.values[0]);
+		mAxis = Math.round(event.values[0]);
 
 	}
 }

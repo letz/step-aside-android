@@ -12,6 +12,8 @@ public class Message {
 	private int mSenderID;
 	private double mVelocity;
 	private int mAxis;
+	
+	private boolean mIsRetransmit;
 
 	public Message(int msgID) {
 		setId(msgID);
@@ -73,6 +75,12 @@ public class Message {
 
 	public void setAxis(int Axis) {
 		this.mAxis = Axis;
+	}
+	public boolean isRetransmit() {
+		return mIsRetransmit;
+	}
+	public void setIsRetransmit(boolean mIsRetransmit) {
+		this.mIsRetransmit = mIsRetransmit;
 	}
 
 
