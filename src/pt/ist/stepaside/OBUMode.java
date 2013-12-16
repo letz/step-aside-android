@@ -1,11 +1,11 @@
 package pt.ist.stepaside;
 
-import java.util.Calendar;
-
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
+import pt.ist.stepaside.utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
@@ -31,6 +31,8 @@ public class OBUMode extends Activity implements MessageReceivedListener, OnChec
 	@Override
 	public void onMessageReceived(Message response) {
 		logTextView.setText(logTextView.getText() +"\n" + response.toString());
+		Utils.writeToFile(response.toStats(), Environment.getExternalStorageDirectory()+"/StepAsideStats.txt");
+
 	}
 
 	@Override

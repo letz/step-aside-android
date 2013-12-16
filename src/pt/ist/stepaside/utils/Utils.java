@@ -1,5 +1,10 @@
 package pt.ist.stepaside.utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import android.location.Location;
 
 public class Utils {
@@ -19,6 +24,25 @@ public class Utils {
 		float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 		float d = earthRadius * c;
 		return d;
+	}
+
+	public static void writeToFile(String str, String path) {
+		File logFile = new File(path);
+		if (!logFile.exists()) {
+			try {
+				logFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			BufferedWriter buf = new BufferedWriter(new FileWriter(logFile,	true));
+			buf.append(str);
+			buf.newLine();
+			buf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

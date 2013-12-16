@@ -1,8 +1,11 @@
 package pt.ist.stepaside.models;
 
+import java.util.Calendar;
 import java.util.Date;
 
-import android.location.Location;
+import pt.ist.stepaside.StepAsideControlUnit;
+import pt.ist.stepaside.utils.MLocationManager;
+import pt.ist.stepaside.utils.Utils;
 
 public class Message {
 
@@ -12,7 +15,7 @@ public class Message {
 	private int mSenderID;
 	private double mVelocity;
 	private int mAxis;
-	
+
 	private boolean mIsRetransmit;
 
 	public Message(int msgID) {
@@ -33,6 +36,10 @@ public class Message {
 				+ mVelocity + ", mAxis=" + mAxis + "]";
 	}
 
+	public String toStats() {
+		return ((mTime.getTime() - Calendar.getInstance().getTimeInMillis()) / 1000 ) + " " + (mDistance - Utils.distanceTo(MLocationManager.getInstance().getBestLocation(), StepAsideControlUnit.RSU_LOC));
+	}
+
 	public int getId() {
 		return mId;
 	}
@@ -48,7 +55,7 @@ public class Message {
 	public String getStringDistance() {
 		return getDistance()+"";
 	}
-	
+
 	public void setDistance(double distance) {
 		this.mDistance = distance;
 	}
