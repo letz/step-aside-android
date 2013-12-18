@@ -1,6 +1,7 @@
 package pt.ist.stepaside;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 import pt.ist.stepaside.listeners.MessageReceivedListener;
 import pt.ist.stepaside.models.Message;
@@ -25,6 +26,7 @@ import android.util.Log;
 public class StepAsideControlUnit implements MessageReceivedListener, SensorEventListener {
 
 	public static final String TAG = StepAsideControlUnit.class.getName();
+	public static final int ONE_MINUTE = 1000;
 
 	private static StepAsideControlUnit instance;
 	private WifiDirectControlUnit mWDCU;
@@ -35,12 +37,16 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 	public static Location RSU_LOC;
 	private int mAxis = 0;
 
-	private int mIntervalR = 2000;
-	private int mIntervalS = 5000;
+	private int mIntervalR = 2 * 1000;
+	private int mIntervalS = 5 * 1000;
+	private int mIntervalRemover = 60 * 1000;
 	private Handler mHandlerR;
 	private Handler mHandlerS;
+	private Handler mDeleteOldMessages;
 
 	private SensorManager mSensorManager;
+
+	private HashMap<Integer, Message> mReceivedMessages = new HashMap<Integer, Message>();
 
 	public static StepAsideControlUnit getInstance() {
 		if(instance == null)
@@ -59,6 +65,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		mLocManager = MLocationManager.getInstance();
 		mHandlerR = new Handler();
 		mHandlerS = new Handler();
+		mDeleteOldMessages = new Handler();
 
 		RSU_LOC = new Location("dummy");
 		RSU_LOC.setLatitude(-9.3050001);
@@ -66,6 +73,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		// initialize your android device sensor capabilities
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+		startOldMessagesRemoverThread();
 	}
 
 	public static void setRSULocation(Location l) {
@@ -154,6 +162,15 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		}
 	};
 
+	Runnable mMessagesRemover = new Runnable() {
+		@Override
+		public void run() {
+			Log.v(TAG, "Removing Old Messages...");
+			messageRemoverDispacher();
+			mDeleteOldMessages.postDelayed(mMessagesRemover, mIntervalRemover);
+		}
+	};
+
 	private Message mMessage;
 
 	public void startRepeatingListen() {
@@ -173,6 +190,24 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 	public void stopRepeatingSend() {
 		mHandlerS.removeCallbacks(mStatusSender);
 		stopSending();
+	}
+
+	private void startOldMessagesRemoverThread() {
+		mMessagesRemover.run();
+	}
+
+	private void stopOldMessagesThread() {
+		mDeleteOldMessages.removeCallbacks(mMessagesRemover);
+	}
+
+	private void messageRemoverDispacher() {
+		long currentTime = Calendar.getInstance().getTimeInMillis();
+		for(Message m : mReceivedMessages.values()) {
+			if(Math.abs(currentTime - m.getTime().getTime()) > ONE_MINUTE) {
+				Log.v(TAG, "Removed msg(" + m.getId() + ") due expiration");
+				mReceivedMessages.remove(m);
+			}
+		}
 	}
 
 	@Override
