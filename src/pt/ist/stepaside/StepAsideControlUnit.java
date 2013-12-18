@@ -87,15 +87,22 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		response.setIsRetransmit(true);
 		Log.v(TAG, response.toString());
 		mListener.onMessageReceived(response);
-		if(isSameAxis(response)) {
-			Log.e(TAG,"retransmiting message - mAxis:" + mAxis);
-			stopRepeatingSend();
-			startRepeatingSend(response);
-		} else {
-			Log.e(TAG, "message discarded -" + response.getId());
-		}
-
+		mReceivedMessages.put(response.getId(), response);
+		retransmitDispacher(response);
 	}
+
+	private void retransmitDispacher(Message msg) {
+		if(!isSameAxis(msg)) {
+			Log.e(TAG, "message discarded(" + msg.getId() + ") - due axis deviation");
+		} else if(mReceivedMessages.containsKey(msg.getId())) {
+			Log.e(TAG, "message discarded(" + msg.getId() + ") - due id repetition");
+		} else {
+			Log.e(TAG,"retransmiting message(" + msg.getId() + ")");
+			stopRepeatingSend();
+			startRepeatingSend(msg);
+		}
+	}
+
 
 	public void startListening() {
 		mWDCU.receiveMessages();
