@@ -86,8 +86,6 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		Log.v(TAG, "Message Received");
 		response.setIsRetransmit(true);
 		Log.v(TAG, response.toString());
-		mListener.onMessageReceived(response);
-		mReceivedMessages.put(response.getId(), response);
 		retransmitDispacher(response);
 	}
 
@@ -98,7 +96,10 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 			Log.e(TAG, "message discarded(" + msg.getId() + ") - due id repetition");
 		} else {
 			Log.e(TAG,"retransmiting message(" + msg.getId() + ")");
+			mListener.onMessageReceived(msg);
+			mReceivedMessages.put(msg.getId(), msg);
 			stopRepeatingSend();
+			msg.setId(69);
 			startRepeatingSend(msg);
 		}
 	}
