@@ -1,6 +1,6 @@
 package pt.ist.stepaside.listeners;
 
-import pt.ist.stepaside.models.Message;
+import pt.ist.stepaside.models.BaseMessage;
 
 /**
  *
@@ -15,6 +15,6 @@ public interface MessageReceivedListener {
 	 * This method is called when a message arrives
 	 * @param response
 	 */
-	public void onMessageReceived(Message response);
+	public void onMessageReceived(BaseMessage response);
 
 }

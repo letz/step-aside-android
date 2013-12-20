@@ -1,7 +1,7 @@
 package pt.ist.stepaside;
 
 import pt.ist.stepaside.listeners.MessageReceivedListener;
-import pt.ist.stepaside.models.Message;
+import pt.ist.stepaside.models.BaseMessage;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,7 +56,7 @@ public class RSUMode extends Activity implements MessageReceivedListener {
 	}
 
 	@Override
-	public void onMessageReceived(Message response) {
+	public void onMessageReceived(BaseMessage response) {
 		if(!isChange)
 			startRepeating();
 	}

@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import pt.ist.stepaside.listeners.MessageReceivedListener;
+import pt.ist.stepaside.models.BaseMessage;
 import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.MLocationManager;
 import pt.ist.stepaside.utils.Utils;
@@ -14,6 +15,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Handler;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
@@ -43,6 +45,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 	private Handler mHandlerR;
 	private Handler mHandlerS;
 	private Handler mDeleteOldMessages;
+
 
 	private SensorManager mSensorManager;
 
@@ -74,6 +77,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
 		startOldMessagesRemoverThread();
+		TelephonyManager telephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 	}
 
 	public static void setRSULocation(Location l) {
@@ -82,24 +86,26 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 
 
 	@Override
-	public void onMessageReceived(Message response) {
+	public void onMessageReceived(BaseMessage response) {
 		Log.v(TAG, "Message Received");
-		response.setIsRetransmit(true);
+		((Message) response).setIsRetransmit(true);
 		Log.v(TAG, response.toString());
-		retransmitDispacher(response);
+		retransmitDispacher((Message) response);
 	}
 
 	private void retransmitDispacher(Message msg) {
 		if(!isSameAxis(msg)) {
+			mListener.onMessageReceived(new BaseMessage("message discarded(" + msg.getId() + ") - due axis deviation"));
 			Log.e(TAG, "message discarded(" + msg.getId() + ") - due axis deviation");
 		} else if(mReceivedMessages.containsKey(msg.getId())) {
+			mListener.onMessageReceived(new BaseMessage("message discarded(" + msg.getId() + ") - due id repetition"));
 			Log.e(TAG, "message discarded(" + msg.getId() + ") - due id repetition");
 		} else {
+			mListener.onMessageReceived(new BaseMessage("retransmiting message(" + msg.getId() + ")"));
 			Log.e(TAG,"retransmiting message(" + msg.getId() + ")");
 			mListener.onMessageReceived(msg);
 			mReceivedMessages.put(msg.getId(), msg);
 			stopRepeatingSend();
-			msg.setId(69);
 			startRepeatingSend(msg);
 		}
 	}
@@ -115,7 +121,6 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 			toSend.setDistance(Utils.distanceTo(RSU_LOC, mLocManager.getBestLocation()));
 			toSend.setAxis(mAxis);
 			toSend.setTime(Calendar.getInstance().getTime());
-			toSend.setVelocity(30.0);
 			Log.v(TAG, toSend.toString());
 		}
 		mWDCU.sendMessage(toSend);
@@ -212,6 +217,7 @@ public class StepAsideControlUnit implements MessageReceivedListener, SensorEven
 		long currentTime = Calendar.getInstance().getTimeInMillis();
 		for(Message m : mReceivedMessages.values()) {
 			if(Math.abs(currentTime - m.getTime().getTime()) > ONE_MINUTE) {
+				mListener.onMessageReceived(new BaseMessage("Removed msg(" + m.getId() + ") due expiration"));
 				Log.v(TAG, "Removed msg(" + m.getId() + ") due expiration");
 				mReceivedMessages.remove(m);
 			}

@@ -7,7 +7,7 @@ import pt.ist.stepaside.StepAsideControlUnit;
 import pt.ist.stepaside.utils.MLocationManager;
 import pt.ist.stepaside.utils.Utils;
 
-public class Message {
+public class Message extends BaseMessage{
 
 	private int mId;
 	private double mDistance;
@@ -19,9 +19,11 @@ public class Message {
 	private boolean mIsRetransmit;
 
 	public Message(int msgID) {
+		super(null);
 		setId(msgID);
 	}
 	public Message(int msgID, Date time, double distance, double velocity, int axis){
+		super(null);
 		setId(msgID);
 		setTime(time);
 		setVelocity(velocity);

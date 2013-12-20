@@ -1,6 +1,7 @@
 package pt.ist.stepaside;
 
 import pt.ist.stepaside.listeners.MessageReceivedListener;
+import pt.ist.stepaside.models.BaseMessage;
 import pt.ist.stepaside.models.Message;
 import pt.ist.stepaside.utils.Utils;
 import android.app.Activity;
@@ -29,9 +30,10 @@ public class OBUMode extends Activity implements MessageReceivedListener, OnChec
 	}
 
 	@Override
-	public void onMessageReceived(Message response) {
+	public void onMessageReceived(BaseMessage response) {
 		logTextView.setText(logTextView.getText() +"\n" + response.toString());
-		Utils.writeToFile(response.toStats(), Environment.getExternalStorageDirectory()+"/StepAsideStats.txt");
+		if(response instanceof Message)
+			Utils.writeToFile(((Message) response).toStats(), Environment.getExternalStorageDirectory()+"/StepAsideStats.txt");
 
 	}
 
